@@ -16,6 +16,7 @@ import {
   cleanFilePath,
   deduceRenameFromDragOperation,
   filePathFromHTMLElement,
+  FILE_MANAGEMENT_ENDPOINT,
   FILE_MANAGER_ROOT_CLASS,
   generateTargetDescription,
   isFileByExtension,
@@ -76,13 +77,11 @@ const containsFilesByExtension = async (
 };
 
 export const FileTree = React.memo(function FileTreeComponent({
-  baseUrl,
   treeRoots,
   expanded,
   handleToggle,
   onRename,
 }: {
-  baseUrl: string;
   treeRoots: string[];
   expanded: string[];
   handleToggle: (
@@ -206,11 +205,12 @@ export const FileTree = React.memo(function FileTreeComponent({
           });
         } else {
           await fetcher(
-            `${baseUrl}/rename?${queryArgs({
-              oldPath,
-              newPath,
-              oldRoot,
-              newRoot,
+            `${FILE_MANAGEMENT_ENDPOINT}/rename?${queryArgs({
+              old_path: oldPath,
+              new_path: newPath,
+              old_root: oldRoot,
+              new_root: newRoot,
+              project_uuid: projectUuid,
             })}`,
             { method: "POST" }
           );
@@ -226,15 +226,7 @@ export const FileTree = React.memo(function FileTreeComponent({
         setAlert("Error", `Failed to rename file ${oldPath}. Invalid path.`);
       }
     },
-    [
-      onRename,
-      baseUrl,
-      reload,
-      setAlert,
-      setFilePathChanges,
-      pipelineUuid,
-      projectUuid,
-    ]
+    [onRename, reload, setAlert, setFilePathChanges, pipelineUuid, projectUuid]
   );
 
   const moveFiles = React.useCallback(
